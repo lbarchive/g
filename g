@@ -20,21 +20,19 @@
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.# 
-#
-# Author       : Yu-Jie Lin
-# Website      : http://code.google.com/p/yjl/wiki/BashGscript
-# Creation Date: 2007-12-26T03:01:29+0800
+# SOFTWARE. 
+
+G_VERSION="0.1dev"
 
 # Which file to store directories
-G_DIRS=~/.g_dirs
+G_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/g"
+mkdir -p "$G_DATA_DIR"
+G_DIRS="${G_DATA_DIR}/dirs"
 
 # Shows help information
 G_ShowHelp() {
   echo "Commands:
-  g #          : change working directory to dir#
-  g dir        : change working directory to dir
-  g (-g|g)     : get a list of directories
+  g (#|kw|dir) : change working directory
   g (-a|a)     : add current directory
   g (-a|a) dir : add dir
   g (-c|c)     : clean up non-existing directories
@@ -45,34 +43,43 @@ G_ShowHelp() {
 
 # Shows stored directories
 G_ShowDirs() {
-  [[ $1 == "" ]] && echo Pick one:
+  [[ -z $1 ]] && echo Pick one:
   i=0
-  for d in $(cat $G_DIRS); do
-    [[ $1 == "" ]] && echo "$i: $d"
-    dir[$i]=$d
+  while read kw d; do
+    [[ -z $1 ]] && printf "%2d: %s" "$i" "$d"
+    dir[$i]="$d"
+    if [[ $kw != - ]]; then
+      [[ -z $1 ]] && echo -n " [$kw]"
+      key[$i]="$kw"
+    fi
+    [[ -z $1 ]] && echo
     (( i++ ))
-  done
+  done < "$G_DIRS"
   echo;
   }
 
 # Sorts directories after adding or removing
 G_SortDirs() {
-  sort $G_DIRS > $G_DIRS.tmp
-  mv -f $G_DIRS.tmp $G_DIRS
+  sort -k 2 "$G_DIRS" > "$G_DIRS.tmp"
+  mv -f "$G_DIRS.tmp" "$G_DIRS"
   }
 
 # The main function
 g() {
-  [[ -d $1 ]] && cd $1 && return 0
+  [[ -d $1 ]] && cd "$1" && return 0
   # Check commands
-  if [[ $# > 0 ]]; then
+  if (( $# > 0 )); then
     case "$1" in
       -a|--add|a|add)
         dir=$(pwd)
-        [[ "$2" != "" ]] && dir=$2
-        egrep "^$dir\$" $G_DIRS &> /dev/null
-        [[ $? == 0 ]] && echo "$dir already exists." && return 1
-        echo "$dir" >> $G_DIRS
+        [[ ! -z $2 ]] && dir="$2"
+        if egrep ".+ $dir\$" "$G_DIRS" &> /dev/null; then
+          echo "$dir already exists." >&2
+          return 1
+        fi
+        read -p 'Keyword: ' kw
+        kw="${kw:--}"
+        echo "$kw $dir" >> "$G_DIRS"
         echo "$dir added."
         G_SortDirs
         return 0
@@ -80,10 +87,10 @@ g() {
       -c|--clean|c|clean)
         G_ShowDirs 1
         echo -n "cleaning up..."
-        rm -f $G_DIRS
-        touch $G_DIRS
+        rm -f "$G_DIRS"
+        touch "$G_DIRS"
         for (( i=0; i<${#dir[@]}; i++)); do
-          [[ -d ${dir[$i]} ]] && echo "${dir[$i]}" >> $G_DIRS
+          [[ -d ${dir[$i]} ]] && echo "${key[$i]} ${dir[$i]}" >> "$G_DIRS"
         done
         echo "done."
         return 0
@@ -91,31 +98,41 @@ g() {
       -r|--remove|r|remove)
         G_ShowDirs
         read -p "Which dir to remove? " removed
-        [[ $removed == "" ]] && return 1
-        rm -f $G_DIRS
-        touch $G_DIRS
+        if [[ -z $removed ]] || (( $removed >= ${#dir[@]} )); then
+          return 1
+        fi
+        rm -f "$G_DIRS"
+        touch "$G_DIRS"
         for (( i=0; i<${#dir[@]}; i++)); do
-          [[ $i != $removed ]] && echo "${dir[$i]}" >> $G_DIRS
+          if [[ $i != $removed ]] && [[ ${key[$i]} != $removed ]]; then
+            echo "${key[$i]} ${dir[$i]}" >> "$G_DIRS"
+          fi
         done
-        echo "${dir[$removed]} removed."
         return 0
         ;;
       -h|--help|h|help)
         G_ShowHelp
         return 0
         ;;
-      -g|--go|g|go)
-        ;;
       *)
-        if [[ $(egrep "^[0-9]+$" <<< $1) ]]; then
-          G_ShowDirs > /dev/null
-          if [[ $1 -ge 0 && $1 -lt ${#dir[@]} ]]; then
+        G_ShowDirs > /dev/null
+        if egrep '^[0-9]+$'<<< "$1" >/dev/null \
+        && (( $1 >= 0 )) \
+        && (( $1 <= ${#dir[@]} )); then
+          cd ${dir[$1]}
+          return 0
+        fi
+
+        for (( i=0; i<${#key[@]}; i++)); do
+          [[ ${key[$i]} == - ]] && continue
+          if [[ ${key[$i]} == $1 ]]; then
             cd ${dir[$1]}
             return 0
           fi
-        fi
-        echo "Wrong command!"
-        echo;
+        done
+
+        echo "Cannot find dir to switch to!" >&2
+        echo
         G_ShowHelp
         return 1
         ;;
@@ -123,7 +140,7 @@ g() {
   fi
 
   # Make sure there are some dirs in ~/.g_dirs
-  if [[ ! -e $G_DIRS ]] || [[ $(wc -l $G_DIRS) == 0* ]]; then
+  if [[ ! -e $G_DIRS ]] || [[ $(wc -l "$G_DIRS") == 0* ]]; then
     echo "Please add some directories first!
 "
     G_ShowHelp
@@ -134,7 +151,7 @@ g() {
   read -p "Which dir? " i
   [[ $i == "" ]] && return 1
 
-  cd ${dir[$i]}
+  cd "${dir[$i]}"
   unset dir
   }
 
@@ -147,7 +164,7 @@ _g() {
   COMPREPLY=()
   cur="${COMP_WORDS[COMP_CWORD]}"
   prev="${COMP_WORDS[COMP_CWORD-1]}"
-  opts=$(cat $G_DIRS)
+  opts=$(cut -d ' ' -f 2- "$G_DIRS")
 
   # Only do completion for once
   for opt in $opts; do
@@ -160,7 +177,7 @@ _g() {
 # If this script is sourced or run without arguments, it will think to be run
 # as Bash function.
 if [[ $# > 0 ]]; then
-  g $*
+  g "$@"
 else
   complete -F _g g
 fi
