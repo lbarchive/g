@@ -1,0 +1,7 @@
+CHANGES
+=======
+
+## Development
+
+* Extract from Google Code <http://code.google.com/p/yjl/source/browse/Bash/g>
+* Change license to MIT LIcense

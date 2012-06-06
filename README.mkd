@@ -1,0 +1,9 @@
+g - Quick Directory Switcher
+============================
+
+License
+-------
+
+This script is licensed under the MIT License, see COPYING.
+
+    Copyright (c) 2007-2009, 2012 Yu-Jie Lin
