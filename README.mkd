@@ -1,6 +1,35 @@
 g - Quick Directory Switcher
 ============================
 
+*g* is a simple script for quick directory switch, intentionally to be sourced from your `.bashrc`, though it can be run as normally script.
+
+Installation
+------------
+
+Basically, you want to install to your home directory:
+
+    make PREFIX=$HOME install
+    # and per instruction of the installation
+    echo "source $HOME/bin/g" >> ~/.bashrc
+
+Login with new shell process to use `g`.
+
+Usage
+-----
+
+    Commands:
+      g (#|kw|dir) : change working directory
+      g (-a|a)     : add current directory
+      g (-a|a) dir : add dir
+      g (-c|c)     : clean up non-existing directories
+      g (-r|r)     : remove a directory from list
+      g (-h|h)     : show what you are reading right now
+
+Without a command, `g` lists all directories for you to pick up one to switch to. You can use index or keyword to switch, for example:
+
+    g 4
+    g foobar
+
 License
 -------
 
