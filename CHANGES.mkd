@@ -1,7 +1,9 @@
 CHANGES
 =======
 
-## Development
+## 0.1 (2012-06-06T13:35:01Z)
 
+* Add keyword
+* Add Makefile
 * Extract from Google Code <http://code.google.com/p/yjl/source/browse/Bash/g>
 * Change license to MIT LIcense

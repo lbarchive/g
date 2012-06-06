@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE. 
 
-G_VERSION="0.1dev"
+G_VERSION="0.1"
 
 # Which file to store directories
 G_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/g"
