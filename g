@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE. 
 
-G_VERSION="0.1"
+G_VERSION="0.1.1"
 
 # Which file to store directories
 G_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/g"
@@ -126,7 +126,7 @@ g() {
         for (( i=0; i<${#key[@]}; i++)); do
           [[ ${key[$i]} == - ]] && continue
           if [[ ${key[$i]} == $1 ]]; then
-            cd ${dir[$1]}
+            cd ${dir[$i]}
             return 0
           fi
         done

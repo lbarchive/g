@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+## 0.1.1 (2012-06-26T00:11:01Z)
+
+* Fix switching using keyword
+
 ## 0.1 (2012-06-06T13:35:01Z)
 
 * Add keyword
