@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE. 
 
-G_VERSION="0.1.1"
+G_VERSION="0.2"
 
 # Which file to store directories
 G_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/g"
@@ -164,7 +164,7 @@ _g() {
   COMPREPLY=()
   cur="${COMP_WORDS[COMP_CWORD]}"
   prev="${COMP_WORDS[COMP_CWORD-1]}"
-  opts=$(cut -d ' ' -f 2- "$G_DIRS")
+  opts="$(cut -d ' ' -f 1 "$G_DIRS" | grep -v ^-$) $(cut -d ' ' -f 2- "$G_DIRS")"
 
   # Only do completion for once
   for opt in $opts; do
