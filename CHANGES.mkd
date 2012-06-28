@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+## 0.2 (2012-06-28T02:31:35Z)
+
+* Add keywords to Bash completion
+
 ## 0.1.1 (2012-06-26T00:11:01Z)
 
 * Fix switching using keyword
