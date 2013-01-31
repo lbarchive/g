@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+## 0.3 (2013-01-31T00:58:30Z)
+
+* Allow to use keyword to switch in directory list
+
 ## 0.2 (2012-06-28T02:31:35Z)
 
 * Add keywords to Bash completion
