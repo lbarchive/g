@@ -2,7 +2,7 @@
 #
 # g - Quick Directory Switcher
 #
-# Copyright (c) 2007-2009, 2012 Yu-Jie Lin
+# Copyright (c) 2007-2009, 2012-2013 Yu-Jie Lin
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE. 
 
-G_VERSION="0.2"
+G_VERSION="0.3"
 
 # Which file to store directories
 G_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/g"
@@ -63,6 +63,28 @@ G_SortDirs() {
   sort -k 2 "$G_DIRS" > "$G_DIRS.tmp"
   mv -f "$G_DIRS.tmp" "$G_DIRS"
   }
+
+
+G_SwitchDir() {
+  if egrep '^[0-9]+$'<<< "$1" >/dev/null \
+  && (( $1 >= 0 )) \
+  && (( $1 <= ${#dir[@]} )); then
+    cd ${dir[$1]}
+    return 0
+  fi
+
+  for (( i=0; i<${#key[@]}; i++)); do
+    [[ ${key[$i]} == - ]] && continue
+    if [[ ${key[$i]} == $1 ]]; then
+      cd ${dir[$i]}
+      return 0
+    fi
+  done
+
+  echo "Cannot find dir to switch to!" >&2
+  echo
+  return 1
+}
 
 # The main function
 g() {
@@ -116,25 +138,8 @@ g() {
         ;;
       *)
         G_ShowDirs > /dev/null
-        if egrep '^[0-9]+$'<<< "$1" >/dev/null \
-        && (( $1 >= 0 )) \
-        && (( $1 <= ${#dir[@]} )); then
-          cd ${dir[$1]}
-          return 0
-        fi
-
-        for (( i=0; i<${#key[@]}; i++)); do
-          [[ ${key[$i]} == - ]] && continue
-          if [[ ${key[$i]} == $1 ]]; then
-            cd ${dir[$i]}
-            return 0
-          fi
-        done
-
-        echo "Cannot find dir to switch to!" >&2
-        echo
-        G_ShowHelp
-        return 1
+        G_SwitchDir "$1"
+        return $?
         ;;
     esac
   fi
@@ -149,9 +154,8 @@ g() {
 
   G_ShowDirs
   read -p "Which dir? " i
-  [[ $i == "" ]] && return 1
+  G_SwitchDir "$i"
 
-  cd "${dir[$i]}"
   unset dir
   }
 
