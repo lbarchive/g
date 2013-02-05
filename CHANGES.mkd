@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+## Development
+
+* quit silently after input nothing for choosing from list
+
 ## 0.3 (2013-01-31T00:58:30Z)
 
 * Allow to use keyword to switch in directory list
