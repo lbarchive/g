@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE. 
 
-G_VERSION="0.3"
+G_VERSION="0.4dev"
 
 # Which file to store directories
 G_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/g"
@@ -154,7 +154,7 @@ g() {
 
   G_ShowDirs
   read -p "Which dir? " i
-  G_SwitchDir "$i"
+  [[ ! -z "" ]] && G_SwitchDir "$i"
 
   unset dir
   }
