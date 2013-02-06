@@ -154,7 +154,7 @@ g() {
 
   G_ShowDirs
   read -p "Which dir? " i
-  [[ ! -z "" ]] && G_SwitchDir "$i"
+  [[ ! -z "$i" ]] && G_SwitchDir "$i"
 
   unset dir
   }
